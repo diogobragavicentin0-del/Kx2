@@ -1,245 +1,47 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ConectaKx2</title>
-    <style>
-        :root {
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --text-color: #333;
-            --chat-bg: #f0f2f5;
-            --msg-other: #ffffff;
-            --msg-text: #333333;
-            --input-bg: #ffffff;
-            --header-bg: #007bff;
-        }
+<!-- Importando o Firebase Realtime Database -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        body.dark-mode {
-            --bg-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            --card-bg: rgba(30, 30, 30, 0.95);
-            --text-color: #f1f1f1;
-            --chat-bg: #121212;
-            --msg-other: #242424;
-            --msg-text: #ffffff;
-            --input-bg: #1e1e1e;
-            --header-bg: #1f1f1f;
-        }
+  // Substitua com as chaves do seu projeto Firebase Console
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_PROJETO.firebaseapp.com",
+    databaseURL: "https://SEU_PROJETO-default-rtdb.firebaseio.com",
+    projectId: "SEU_PROJETO",
+    storageBucket: "SEU_PROJETO.appspot.com",
+    messagingSenderId: "SEU_ID",
+    appId: "SEU_APP_ID"
+  };
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
-        body { background: var(--bg-gradient) no-repeat; display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--text-color); }
-        
-        .card-box {
-            background: var(--card-bg); padding: 30px; border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); width: 320px; text-align: center;
-        }
-        .card-box h2 { margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 5px; font-size: 14px; opacity: 0.8; }
-        .input-group input {
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none;
-            background: var(--input-bg); color: var(--text-color);
-        }
-        .btn-acao {
-            width: 100%; padding: 12px; background-color: #007bff; color: white;
-            border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;
-        }
-        .btn-acao:hover { opacity: 0.9; }
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const messagesRef = ref(db, 'mensagens');
 
-        .chat-container {
-            width: 100%; max-width: 450px; background: var(--card-bg); 
-            border-radius: 12px; display: flex; flex-direction: column; height: 85vh; overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        .chat-header {
-            background-color: var(--header-bg); color: white; padding: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .user-status { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-        .dot-online { width: 10px; height: 10px; background-color: #28a745; border-radius: 50%; display: inline-block; }
-        
-        .header-actions { display: flex; gap: 8px; }
-        .btn-top { background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .btn-top:hover { background: rgba(255,255,255,0.4); }
+  // Elementos da tela
+  const inputMsg = document.querySelector('input'); // Campo de texto
+  const btnEnviar = document.querySelector('button'); // Botão Enviar
+  const areaMensagens = document.querySelector('.chat-box'); // Conteúdo do chat
 
-        .chat-messages {
-            flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background-color: var(--chat-bg); 
-        }
-        .message {
-            background: var(--msg-other); color: var(--msg-text); padding: 10px 14px; border-radius: 12px; max-width: 75%; word-wrap: break-word; align-self: flex-start;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .message.minha-mensagem { align-self: flex-end; background-color: #007bff; color: white; }
-        .message strong { display: block; font-size: 11px; opacity: 0.7; margin-bottom: 4px; }
-        .message-time { font-size: 10px; opacity: 0.6; float: right; margin-top: 6px; margin-left: 8px; }
+  // Enviar mensagem para a nuvem
+  function enviar() {
+    if (!inputMsg.value.trim()) return;
+    push(messagesRef, {
+      usuario: "diogo",
+      texto: inputMsg.value,
+      horario: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+    inputMsg.value = '';
+  }
 
-        .emoji-bar { display: flex; gap: 5px; padding: 5px 12px; background: var(--card-bg); border-top: 1px solid rgba(0,0,0,0.1); }
-        .emoji-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 2px 5px; border-radius: 4px; }
-        .emoji-btn:hover { background: rgba(0,0,0,0.1); }
+  btnEnviar.addEventListener('click', enviar);
 
-        .chat-input { display: flex; padding: 12px; border-top: 1px solid rgba(0,0,0,0.1); background: var(--card-bg); }
-        .chat-input input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; outline: none; background: var(--input-bg); color: var(--text-color); }
-        .chat-input button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 20px; margin-left: 8px; cursor: pointer; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-    <!-- ETAPA 1: DIGITAR E-MAIL E SENHA -->
-    <div class="card-box" id="telaAuth">
-        <h2>ConectaKx2</h2>
-        <form id="formAuth">
-            <div class="input-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" placeholder="admin@email.com ou o seu" required>
-            </div>
-            <div class="input-group">
-                <label for="senha">Senha</label>
-                <input type="password" id="senha" placeholder="Sua senha" required>
-            </div>
-            <button type="submit" class="btn-acao">Entrar</button>
-        </form>
-    </div>
-
-    <!-- ETAPA 2: ESCOLHER NOME DE USUÁRIO -->
-    <div class="card-box" id="telaPerfil" style="display: none;">
-        <h2>Seu Apelido</h2>
-        <form id="formPerfil">
-            <div class="input-group">
-                <label for="nomeUsuario">Nome na conversa:</label>
-                <input type="text" id="nomeUsuario" placeholder="Ex: Diogo" required autocomplete="off">
-            </div>
-            <button type="submit" class="btn-acao">Ir para o Chat 🚀</button>
-        </form>
-    </div>
-
-    <!-- ETAPA 3: SALA DE CHAT -->
-    <div class="chat-container" id="telaChat" style="display: none;">
-        <div class="chat-header">
-            <div>
-                <h3 id="tituloChat">💬 Chat</h3>
-                <div class="user-status"><span class="dot-online"></span> <small id="statusTexto">Online</small></div>
-            </div>
-            <div class="header-actions">
-                <button class="btn-top" onclick="toggleDarkMode()" type="button">🌙</button>
-                <button class="btn-top" style="background: #dc3545;" onclick="sair()" type="button">Sair</button>
-            </div>
-        </div>
-        
-        <div class="chat-messages" id="mensagensContainer"></div>
-
-        <!-- Painel Rápido de Emojis -->
-        <div class="emoji-bar">
-            <button class="emoji-btn" type="button" onclick="addEmoji('👍')">👍</button>
-            <button class="emoji-btn" type="button" onclick="addEmoji('🔥')">🔥</button>
-            <button class="emoji-btn" type="button" onclick="addEmoji('😂')">😂</button>
-            <button class="emoji-btn" type="button" onclick="addEmoji('❤️')">❤️</button>
-            <button class="emoji-btn" type="button" onclick="addEmoji('🚀')">🚀</button>
-            <button class="emoji-btn" type="button" onclick="limparHistorico()" title="Limpar Histórico" style="margin-left: auto;">🗑️</button>
-        </div>
-
-        <form class="chat-input" id="formChat">
-            <input type="text" id="inputMensagem" placeholder="Digite sua mensagem..." required autocomplete="off">
-            <button type="submit">Enviar</button>
-        </form>
-    </div>
-
-    <script>
-        let usuarioNomeChat = "";
-        
-        // Permite entrar com qualquer e-mail e senha sem dar erro
-        document.getElementById('formAuth').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const senha = document.getElementById('senha').value.trim();
-
-            if (email !== "" && senha !== "") {
-                document.getElementById('telaAuth').style.display = "none";
-                document.getElementById('telaPerfil').style.display = "block";
-            }
-        });
-
-        document.getElementById('formPerfil').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const nome = document.getElementById('nomeUsuario').value.trim();
-            if (nome !== "") {
-                usuarioNomeChat = nome;
-                document.getElementById('telaPerfil').style.display = "none";
-                document.getElementById('telaChat').style.display = "flex";
-                document.getElementById('tituloChat').textContent = `💬 ${usuarioNomeChat}`;
-                carregarHistorico();
-            }
-        });
-
-        const formChat = document.getElementById('formChat');
-        const inputMensagem = document.getElementById('inputMensagem');
-        const mensagensContainer = document.getElementById('mensagensContainer');
-
-        function playSound() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.15);
-            } catch(e) {}
-        }
-
-        function adicionarMensagem(autor, texto, hora, salvar = true) {
-            const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message');
-            if (autor === usuarioNomeChat) msgDiv.classList.add('minha-mensagem');
-
-            const horaFormatada = hora || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            msgDiv.innerHTML = `<strong>${autor}</strong><span>${texto}</span><span class="message-time">${horaFormatada}</span>`;
-            mensagensContainer.appendChild(msgDiv);
-            mensagensContainer.scrollTop = mensagensContainer.scrollHeight;
-
-            if (salvar) {
-                const historico = JSON.parse(localStorage.getItem('kx2_chat_history') || '[]');
-                historico.push({ autor, texto, hora: horaFormatada });
-                localStorage.setItem('kx2_chat_history', JSON.stringify(historico));
-            }
-        }
-
-        function carregarHistorico() {
-            mensagensContainer.innerHTML = "";
-            const historico = JSON.parse(localStorage.getItem('kx2_chat_history') || '[]');
-            historico.forEach(msg => adicionarMensagem(msg.autor, msg.texto, msg.hora, false));
-        }
-
-        function limparHistorico() {
-            if (confirm("Deseja apagar o histórico de mensagens?")) {
-                localStorage.removeItem('kx2_chat_history');
-                mensagensContainer.innerHTML = "";
-            }
-        }
-
-        formChat.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const texto = inputMensagem.value.trim();
-            if (texto !== "") {
-                adicionarMensagem(usuarioNomeChat, texto);
-                playSound();
-                inputMensagem.value = "";
-            }
-        });
-
-        function addEmoji(emoji) {
-            inputMensagem.value += emoji;
-            inputMensagem.focus();
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-        }
-
-        function sair() { location.reload(); }
-    </script>
-</body>
-</html>
+  // Receber mensagens em tempo real (no PC e no Celular)
+  onChildAdded(messagesRef, (snapshot) => {
+    const data = snapshot.val();
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'mensagem';
+    msgDiv.innerHTML = `<strong>${data.usuario}:</strong> ${data.texto} <small>${data.horario}</small>`;
+    areaMensagens.appendChild(msgDiv);
+  });
+</script>
