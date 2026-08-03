@@ -3,36 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Principal - Chat</title>
+    <title>ConectaKx2 - Sistema Completo</title>
     <style>
-        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
         
         body { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) no-repeat;
-            margin: 0; 
-            padding: 20px; 
             display: flex; 
             justify-content: center; 
+            align-items: center;
             background-size: cover; 
             height: 100vh;
         }
 
+        /* ESTILO DOS CARTOES (LOGIN E NOMES) */
+        .card-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 320px;
+            text-align: center;
+        }
+
+        .card-box h2 { margin-bottom: 20px; color: #333; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 5px; color: #555; font-size: 14px; }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .btn-acao {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-acao:hover { background-color: #0056b3; }
+
+        #mensagem-erro { margin-top: 15px; font-weight: bold; font-size: 14px; }
+
+        /* ESTILO DA SALA DE CHAT */
         .chat-container {
             width: 100%;
             max-width: 500px;
             background: rgba(255, 255, 255, 0.95); 
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25); 
             display: flex;
             flex-direction: column;
-            height: 80vh;
+            height: 85vh;
             overflow: hidden; 
         }
 
         .chat-header {
             background-color: #007bff; 
             color: white;
-            padding: 15px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -43,12 +81,11 @@
             background: #dc3545;
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background 0.3s;
+            font-weight: bold;
         }
-        .chat-header button:hover { background: #a71d2a; }
 
         .chat-messages {
             flex: 1;
@@ -56,103 +93,203 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            background-color: #f8f9fa; 
+            gap: 12px;
+            background-color: #f0f2f5; 
         }
 
         .message {
             background: white;
-            padding: 10px;
-            border-radius: 8px;
-            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 75%;
             word-wrap: break-word;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
+            align-self: flex-start;
         }
+
+        .message.minha-mensagem {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .message.minha-mensagem strong { color: #e0e0e0; }
 
         .message strong {
             display: block;
-            font-size: 12px;
-            color: #555;
-            margin-bottom: 3px;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            float: right;
+            margin-top: 6px;
+            margin-left: 8px;
         }
 
         .chat-input {
             display: flex;
-            padding: 10px;
+            padding: 12px;
             border-top: 1px solid #ddd;
             background: white; 
         }
 
         .chat-input input {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 20px;
             outline: none;
         }
 
         .chat-input button {
-            padding: 10px 15px;
+            padding: 10px 20px;
             background-color: #007bff; 
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 20px;
             margin-left: 8px;
             cursor: pointer;
-            transition: background 0.3s;
+            font-weight: bold;
         }
-        .chat-input button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
 
-<div class="chat-container">
-    <div class="chat-header">
-        <h3>Sala de Bate-papo</h3>
-        <button onclick="sair()">Sair</button>
+    <!-- ETAPA 1: TELA DE LOGIN -->
+    <div class="card-box" id="telaLogin">
+        <h2>Entrar</h2>
+        <form id="formLogin">
+            <div class="input-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="seu@email.com" required>
+            </div>
+            <div class="input-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" placeholder="Sua senha" required>
+            </div>
+            <button type="submit" class="btn-acao">Próximo</button>
+        </form>
+        <p id="mensagem-erro"></p>
     </div>
 
-    <div class="chat-messages" id="mensagensContainer">
-        <!-- Mensagens aparecerão aqui -->
+    <!-- ETAPA 2: ESCOLHER NOME DE USUÁRIO -->
+    <div class="card-box" id="telaPerfil" style="display: none;">
+        <h2>Seu Perfil</h2>
+        <form id="formPerfil">
+            <div class="input-group">
+                <label for="nomeUsuario">Escolha seu nome de usuário:</label>
+                <input type="text" id="nomeUsuario" placeholder="Ex: Diogo123" required autocomplete="off">
+            </div>
+            <button type="submit" class="btn-acao">Entrar no Chat</button>
+        </form>
     </div>
 
-    <form class="chat-input" id="formChat">
-        <input type="text" id="inputMensagem" placeholder="Digite sua mensagem..." required autocomplete="off">
-        <button type="submit">Enviar</button>
-    </form>
-</div>
+    <!-- ETAPA 3: SALA DE BATE-PAPO -->
+    <div class="chat-container" id="telaChat" style="display: none;">
+        <div class="chat-header">
+            <h3 id="tituloChat">💬 Bate-papo</h3>
+            <button onclick="sair()">Sair</button>
+        </div>
 
-<script>
-    const usuario = localStorage.getItem("usuarioLogado");
-    if (!usuario) {
-        window.location.href = "index.html"; 
-    }
+        <div class="chat-messages" id="mensagensContainer">
+            <!-- Mensagens aparecem aqui -->
+        </div>
 
-    const formChat = document.getElementById('formChat');
-    const inputMensagem = document.getElementById('inputMensagem');
-    const mensagensContainer = document.getElementById('mensagensContainer');
+        <form class="chat-input" id="formChat">
+            <input type="text" id="inputMensagem" placeholder="Digite sua mensagem..." required autocomplete="off">
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
 
-    function adicionarMensagem(autor, texto) {
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('message');
-        msgDiv.innerHTML = `<strong>${autor}</strong> ${texto}`;
-        mensagensContainer.appendChild(msgDiv);
-        mensagensContainer.scrollTop = mensagensContainer.scrollHeight;
-    }
+    <script>
+        // Elementos das telas
+        const telaLogin = document.getElementById('telaLogin');
+        const telaPerfil = document.getElementById('telaPerfil');
+        const telaChat = document.getElementById('telaChat');
 
-    formChat.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const texto = inputMensagem.value.trim();
-        if (texto !== "") {
-            adicionarMensagem(usuario, texto);
-            inputMensagem.value = "";
+        // Variáveis do usuário
+        let usuarioEmail = "";
+        let usuarioNome = "";
+
+        // 1. AÇÃO DE LOGIN
+        document.getElementById('formLogin').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const erro = document.getElementById('mensagem-erro');
+
+            // Dados fixos de teste
+            if (email === "admin@email.com" && senha === "123456") {
+                usuarioEmail = email;
+                telaLogin.style.display = "none";
+                telaPerfil.style.display = "block"; // Avança para escolha de nome
+            } else {
+                erro.style.color = "red";
+                erro.textContent = "E-mail ou senha incorretos!";
+            }
+        });
+
+        // 2. AÇÃO DE DEFINIR NOME DE USUÁRIO
+        document.getElementById('formPerfil').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nomeDigitado = document.getElementById('nomeUsuario').value.trim();
+
+            if (nomeDigitado !== "") {
+                usuarioNome = nomeDigitado;
+                telaPerfil.style.display = "none";
+                telaChat.style.display = "flex"; // Abre a sala de bate-papo
+                document.getElementById('tituloChat').textContent = `💬 Olá, ${usuarioNome}!`;
+            }
+        });
+
+        // 3. AÇÃO DO CHAT (ENVIAR MENSAGENS)
+        const formChat = document.getElementById('formChat');
+        const inputMensagem = document.getElementById('inputMensagem');
+        const mensagensContainer = document.getElementById('mensagensContainer');
+
+        function adicionarMensagem(autor, texto) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+
+            if (autor === usuarioNome) {
+                msgDiv.classList.add('minha-mensagem');
+            }
+
+            const agora = new Date();
+            const hora = agora.getHours().toString().padStart(2, '0');
+            const minuto = agora.getMinutes().toString().padStart(2, '0');
+
+            msgDiv.innerHTML = `
+                <strong>${autor}</strong> 
+                <span>${texto}</span>
+                <span class="message-time">${hora}:${minuto}</span>
+            `;
+
+            mensagensContainer.appendChild(msgDiv);
+            mensagensContainer.scrollTop = mensagensContainer.scrollHeight;
         }
-    });
 
-    function sair() {
-        localStorage.removeItem("usuarioLogado");
-        window.location.href = "index.html";
-    }
+        formChat.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const texto = inputMensagem.value.trim();
+            if (texto !== "") {
+                adicionarMensagem(usuarioNome, texto);
+                inputMensagem.value = "";
+            }
+        });
+
+        // REINICIAR / SAIR
+        function sair() {
+            location.reload(); // Recarrega a página do zero
+        }
+    </script>
+
+</body>
+</html>
 </script>
 
 </body>
