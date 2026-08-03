@@ -16,7 +16,7 @@
             height: 100vh;
         }
 
-        /* ESTILO DOS CARTOES (LOGIN E NOMES) */
+        /* CARD DE FORMULÁRIO */
         .card-box {
             background: rgba(255, 255, 255, 0.95);
             padding: 30px;
@@ -52,9 +52,17 @@
         }
         .btn-acao:hover { background-color: #0056b3; }
 
-        #mensagem-erro { margin-top: 15px; font-weight: bold; font-size: 14px; }
+        .toggle-link {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
 
-        /* ESTILO DA SALA DE CHAT */
+        .mensagem { margin-top: 15px; font-weight: bold; font-size: 14px; }
+
+        /* CHAT */
         .chat-container {
             width: 100%;
             max-width: 500px;
@@ -159,10 +167,10 @@
 </head>
 <body>
 
-    <!-- ETAPA 1: TELA DE LOGIN -->
-    <div class="card-box" id="telaLogin">
-        <h2>Entrar</h2>
-        <form id="formLogin">
+    <!-- ETAPA 1: LOGIN E CADASTRO -->
+    <div class="card-box" id="telaAuth">
+        <h2 id="tituloAuth">Entrar</h2>
+        <form id="formAuth">
             <div class="input-group">
                 <label for="email">E-mail</label>
                 <input type="email" id="email" placeholder="seu@email.com" required>
@@ -171,9 +179,10 @@
                 <label for="senha">Senha</label>
                 <input type="password" id="senha" placeholder="Sua senha" required>
             </div>
-            <button type="submit" class="btn-acao">Próximo</button>
+            <button type="submit" class="btn-acao" id="btnSubmit">Entrar</button>
         </form>
-        <p id="mensagem-erro"></p>
+        <p class="mensagem" id="mensagemAuth"></p>
+        <p class="toggle-link" id="toggleAuth" onclick="alternarModo()">Não tem conta? Crie uma aqui</p>
     </div>
 
     <!-- ETAPA 2: ESCOLHER NOME DE USUÁRIO -->
@@ -181,7 +190,7 @@
         <h2>Seu Perfil</h2>
         <form id="formPerfil">
             <div class="input-group">
-                <label for="nomeUsuario">Escolha seu nome de usuário:</label>
+                <label for="nomeUsuario">Escolha seu nome de usuário no chat:</label>
                 <input type="text" id="nomeUsuario" placeholder="Ex: Diogo123" required autocomplete="off">
             </div>
             <button type="submit" class="btn-acao">Entrar no Chat</button>
@@ -206,47 +215,89 @@
     </div>
 
     <script>
-        // Elementos das telas
-        const telaLogin = document.getElementById('telaLogin');
-        const telaPerfil = document.getElementById('telaPerfil');
-        const telaChat = document.getElementById('telaChat');
+        // Banco de Dados no Navegador
+        let contasCadastradas = JSON.parse(localStorage.getItem('contasUsuarios')) || {
+            "admin@email.com": "123456" // Conta de teste inicial
+        };
 
-        // Variáveis do usuário
-        let usuarioEmail = "";
-        let usuarioNome = "";
+        let modoCadastro = false;
+        let usuarioEmailLogado = "";
+        let usuarioNomeChat = "";
 
-        // 1. AÇÃO DE LOGIN
-        document.getElementById('formLogin').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const senha = document.getElementById('senha').value;
-            const erro = document.getElementById('mensagem-erro');
+        // Alternar entre Entrar e Criar Conta
+        function alternarModo() {
+            modoCadastro = !modoCadastro;
+            const titulo = document.getElementById('tituloAuth');
+            const btn = document.getElementById('btnSubmit');
+            const toggle = document.getElementById('toggleAuth');
+            const msg = document.getElementById('mensagemAuth');
 
-            // Dados fixos de teste
-            if (email === "admin@email.com" && senha === "123456") {
-                usuarioEmail = email;
-                telaLogin.style.display = "none";
-                telaPerfil.style.display = "block"; // Avança para escolha de nome
+            msg.textContent = "";
+
+            if (modoCadastro) {
+                titulo.textContent = "Criar Conta";
+                btn.textContent = "Cadastrar";
+                toggle.textContent = "Já tem uma conta? Entrar";
             } else {
-                erro.style.color = "red";
-                erro.textContent = "E-mail ou senha incorretos!";
+                titulo.textContent = "Entrar";
+                btn.textContent = "Entrar";
+                toggle.textContent = "Não tem conta? Crie uma aqui";
+            }
+        }
+
+        // Submeter Login / Cadastro
+        document.getElementById('formAuth').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const senha = document.getElementById('senha').value;
+            const msg = document.getElementById('mensagemAuth');
+
+            if (modoCadastro) {
+                // LÓGICA DE CRIAR CONTA
+                if (contasCadastradas[email]) {
+                    msg.style.color = "red";
+                    msg.textContent = "Este e-mail já está cadastrado!";
+                } else {
+                    contasCadastradas[email] = senha;
+                    localStorage.setItem('contasUsuarios', JSON.stringify(contasCadastradas));
+                    msg.style.color = "green";
+                    msg.textContent = "Conta criada com sucesso! Redirecionando...";
+                    
+                    setTimeout(() => {
+                        usuarioEmailLogado = email;
+                        avancarParaPerfil();
+                    }, 1000);
+                }
+            } else {
+                // LÓGICA DE LOGIN
+                if (contasCadastradas[email] && contasCadastradas[email] === senha) {
+                    usuarioEmailLogado = email;
+                    avancarParaPerfil();
+                } else {
+                    msg.style.color = "red";
+                    msg.textContent = "E-mail ou senha incorretos!";
+                }
             }
         });
 
-        // 2. AÇÃO DE DEFINIR NOME DE USUÁRIO
+        function avancarParaPerfil() {
+            document.getElementById('telaAuth').style.display = "none";
+            document.getElementById('telaPerfil').style.display = "block";
+        }
+
+        // Definir apelido
         document.getElementById('formPerfil').addEventListener('submit', function(e) {
             e.preventDefault();
-            const nomeDigitado = document.getElementById('nomeUsuario').value.trim();
-
-            if (nomeDigitado !== "") {
-                usuarioNome = nomeDigitado;
-                telaPerfil.style.display = "none";
-                telaChat.style.display = "flex"; // Abre a sala de bate-papo
-                document.getElementById('tituloChat').textContent = `💬 Olá, ${usuarioNome}!`;
+            const nome = document.getElementById('nomeUsuario').value.trim();
+            if (nome !== "") {
+                usuarioNomeChat = nome;
+                document.getElementById('telaPerfil').style.display = "none";
+                document.getElementById('telaChat').style.display = "flex";
+                document.getElementById('tituloChat').textContent = `💬 Olá, ${usuarioNomeChat}!`;
             }
         });
 
-        // 3. AÇÃO DO CHAT (ENVIAR MENSAGENS)
+        // Chat
         const formChat = document.getElementById('formChat');
         const inputMensagem = document.getElementById('inputMensagem');
         const mensagensContainer = document.getElementById('mensagensContainer');
@@ -255,7 +306,7 @@
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message');
 
-            if (autor === usuarioNome) {
+            if (autor === usuarioNomeChat) {
                 msgDiv.classList.add('minha-mensagem');
             }
 
@@ -277,19 +328,18 @@
             e.preventDefault();
             const texto = inputMensagem.value.trim();
             if (texto !== "") {
-                adicionarMensagem(usuarioNome, texto);
+                adicionarMensagem(usuarioNomeChat, texto);
                 inputMensagem.value = "";
             }
         });
 
-        // REINICIAR / SAIR
         function sair() {
-            location.reload(); // Recarrega a página do zero
+            location.reload();
         }
     </script>
-
 </body>
 </html>
+
 </script>
 
 </body>
