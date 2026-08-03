@@ -3,173 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ConectaKx2 - Sistema Completo</title>
+    <title>ConectaKx2</title>
     <style>
         * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        
         body { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) no-repeat;
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            background-size: cover; 
+            display: flex; justify-content: center; align-items: center;
             height: 100vh;
         }
-
-        /* CARD DE FORMULÁRIO */
         .card-box {
             background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 12px;
+            padding: 30px; border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            width: 320px;
-            text-align: center;
+            width: 320px; text-align: center;
         }
-
         .card-box h2 { margin-bottom: 20px; color: #333; }
-
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; margin-bottom: 5px; color: #555; font-size: 14px; }
         .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            outline: none;
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none;
         }
-
         .btn-acao {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
+            width: 100%; padding: 12px; background-color: #007bff; color: white;
+            border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;
         }
-        .btn-acao:hover { background-color: #0056b3; }
-
-        .toggle-link {
-            margin-top: 15px;
-            font-size: 13px;
-            color: #007bff;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .mensagem { margin-top: 15px; font-weight: bold; font-size: 14px; }
-
-        /* CHAT */
         .chat-container {
-            width: 100%;
-            max-width: 500px;
-            background: rgba(255, 255, 255, 0.95); 
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.25); 
-            display: flex;
-            flex-direction: column;
-            height: 85vh;
-            overflow: hidden; 
+            width: 100%; max-width: 500px; background: rgba(255, 255, 255, 0.95); 
+            border-radius: 12px; display: flex; flex-direction: column; height: 85vh; overflow: hidden; 
         }
-
         .chat-header {
-            background-color: #007bff; 
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background-color: #007bff; color: white; padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .chat-header h3 { margin: 0; font-size: 18px; }
         .chat-header button {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
+            background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;
         }
-
         .chat-messages {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background-color: #f0f2f5; 
+            flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background-color: #f0f2f5; 
         }
-
         .message {
-            background: white;
-            padding: 10px 14px;
-            border-radius: 12px;
-            max-width: 75%;
-            word-wrap: break-word;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
-            align-self: flex-start;
+            background: white; padding: 10px 14px; border-radius: 12px; max-width: 75%; word-wrap: break-word; align-self: flex-start;
         }
-
-        .message.minha-mensagem {
-            align-self: flex-end;
-            background-color: #007bff;
-            color: white;
-        }
-
-        .message.minha-mensagem strong { color: #e0e0e0; }
-
-        .message strong {
-            display: block;
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        .message-time {
-            font-size: 10px;
-            opacity: 0.7;
-            float: right;
-            margin-top: 6px;
-            margin-left: 8px;
-        }
-
-        .chat-input {
-            display: flex;
-            padding: 12px;
-            border-top: 1px solid #ddd;
-            background: white; 
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            outline: none;
-        }
-
-        .chat-input button {
-            padding: 10px 20px;
-            background-color: #007bff; 
-            color: white;
-            border: none;
-            border-radius: 20px;
-            margin-left: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .message.minha-mensagem { align-self: flex-end; background-color: #007bff; color: white; }
+        .message strong { display: block; font-size: 11px; color: #666; margin-bottom: 4px; }
+        .message-time { font-size: 10px; opacity: 0.7; float: right; margin-top: 6px; margin-left: 8px; }
+        .chat-input { display: flex; padding: 12px; border-top: 1px solid #ddd; background: white; }
+        .chat-input input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; outline: none; }
+        .chat-input button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 20px; margin-left: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- ETAPA 1: LOGIN E CADASTRO -->
+    <!-- ETAPA 1: DIGITAR E-MAIL E SENHA -->
     <div class="card-box" id="telaAuth">
-        <h2 id="tituloAuth">Entrar</h2>
+        <h2>Entrar no ConectaKx2</h2>
         <form id="formAuth">
             <div class="input-group">
                 <label for="email">E-mail</label>
@@ -179,10 +66,8 @@
                 <label for="senha">Senha</label>
                 <input type="password" id="senha" placeholder="Sua senha" required>
             </div>
-            <button type="submit" class="btn-acao" id="btnSubmit">Entrar</button>
+            <button type="submit" class="btn-acao">Próximo</button>
         </form>
-        <p class="mensagem" id="mensagemAuth"></p>
-        <p class="toggle-link" id="toggleAuth" onclick="alternarModo()">Não tem conta? Crie uma aqui</p>
     </div>
 
     <!-- ETAPA 2: ESCOLHER NOME DE USUÁRIO -->
@@ -190,24 +75,20 @@
         <h2>Seu Perfil</h2>
         <form id="formPerfil">
             <div class="input-group">
-                <label for="nomeUsuario">Escolha seu nome de usuário no chat:</label>
+                <label for="nomeUsuario">Escolha seu nome no chat:</label>
                 <input type="text" id="nomeUsuario" placeholder="Ex: Diogo123" required autocomplete="off">
             </div>
             <button type="submit" class="btn-acao">Entrar no Chat</button>
         </form>
     </div>
 
-    <!-- ETAPA 3: SALA DE BATE-PAPO -->
+    <!-- ETAPA 3: SALA DE CHAT -->
     <div class="chat-container" id="telaChat" style="display: none;">
         <div class="chat-header">
             <h3 id="tituloChat">💬 Bate-papo</h3>
             <button onclick="sair()">Sair</button>
         </div>
-
-        <div class="chat-messages" id="mensagensContainer">
-            <!-- Mensagens aparecem aqui -->
-        </div>
-
+        <div class="chat-messages" id="mensagensContainer"></div>
         <form class="chat-input" id="formChat">
             <input type="text" id="inputMensagem" placeholder="Digite sua mensagem..." required autocomplete="off">
             <button type="submit">Enviar</button>
@@ -215,77 +96,16 @@
     </div>
 
     <script>
-        // Banco de Dados no Navegador
-        let contasCadastradas = JSON.parse(localStorage.getItem('contasUsuarios')) || {
-            "admin@email.com": "123456" // Conta de teste inicial
-        };
-
-        let modoCadastro = false;
         let usuarioEmailLogado = "";
         let usuarioNomeChat = "";
 
-        // Alternar entre Entrar e Criar Conta
-        function alternarModo() {
-            modoCadastro = !modoCadastro;
-            const titulo = document.getElementById('tituloAuth');
-            const btn = document.getElementById('btnSubmit');
-            const toggle = document.getElementById('toggleAuth');
-            const msg = document.getElementById('mensagemAuth');
-
-            msg.textContent = "";
-
-            if (modoCadastro) {
-                titulo.textContent = "Criar Conta";
-                btn.textContent = "Cadastrar";
-                toggle.textContent = "Já tem uma conta? Entrar";
-            } else {
-                titulo.textContent = "Entrar";
-                btn.textContent = "Entrar";
-                toggle.textContent = "Não tem conta? Crie uma aqui";
-            }
-        }
-
-        // Submeter Login / Cadastro
         document.getElementById('formAuth').addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = document.getElementById('email').value.trim().toLowerCase();
-            const senha = document.getElementById('senha').value;
-            const msg = document.getElementById('mensagemAuth');
-
-            if (modoCadastro) {
-                // LÓGICA DE CRIAR CONTA
-                if (contasCadastradas[email]) {
-                    msg.style.color = "red";
-                    msg.textContent = "Este e-mail já está cadastrado!";
-                } else {
-                    contasCadastradas[email] = senha;
-                    localStorage.setItem('contasUsuarios', JSON.stringify(contasCadastradas));
-                    msg.style.color = "green";
-                    msg.textContent = "Conta criada com sucesso! Redirecionando...";
-                    
-                    setTimeout(() => {
-                        usuarioEmailLogado = email;
-                        avancarParaPerfil();
-                    }, 1000);
-                }
-            } else {
-                // LÓGICA DE LOGIN
-                if (contasCadastradas[email] && contasCadastradas[email] === senha) {
-                    usuarioEmailLogado = email;
-                    avancarParaPerfil();
-                } else {
-                    msg.style.color = "red";
-                    msg.textContent = "E-mail ou senha incorretos!";
-                }
-            }
-        });
-
-        function avancarParaPerfil() {
+            usuarioEmailLogado = document.getElementById('email').value.trim();
             document.getElementById('telaAuth').style.display = "none";
             document.getElementById('telaPerfil').style.display = "block";
-        }
+        });
 
-        // Definir apelido
         document.getElementById('formPerfil').addEventListener('submit', function(e) {
             e.preventDefault();
             const nome = document.getElementById('nomeUsuario').value.trim();
@@ -297,7 +117,6 @@
             }
         });
 
-        // Chat
         const formChat = document.getElementById('formChat');
         const inputMensagem = document.getElementById('inputMensagem');
         const mensagensContainer = document.getElementById('mensagensContainer');
@@ -305,21 +124,13 @@
         function adicionarMensagem(autor, texto) {
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message');
-
-            if (autor === usuarioNomeChat) {
-                msgDiv.classList.add('minha-mensagem');
-            }
+            if (autor === usuarioNomeChat) msgDiv.classList.add('minha-mensagem');
 
             const agora = new Date();
             const hora = agora.getHours().toString().padStart(2, '0');
             const minuto = agora.getMinutes().toString().padStart(2, '0');
 
-            msgDiv.innerHTML = `
-                <strong>${autor}</strong> 
-                <span>${texto}</span>
-                <span class="message-time">${hora}:${minuto}</span>
-            `;
-
+            msgDiv.innerHTML = `<strong>${autor}</strong><span>${texto}</span><span class="message-time">${hora}:${minuto}</span>`;
             mensagensContainer.appendChild(msgDiv);
             mensagensContainer.scrollTop = mensagensContainer.scrollHeight;
         }
@@ -333,14 +144,7 @@
             }
         });
 
-        function sair() {
-            location.reload();
-        }
+        function sair() { location.reload(); }
     </script>
-</body>
-</html>
-
-</script>
-
 </body>
 </html>
